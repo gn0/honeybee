@@ -96,7 +96,7 @@ def non_required_question(row):
 
 
 def extract_variables(string):
-    return re.findall(r"\${([^}]+)}", string)
+    return tuple(re.findall(r"\${([^}]+)}", string))
 
 
 def undefined_references(row, names):
