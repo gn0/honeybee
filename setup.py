@@ -16,6 +16,7 @@ setup(
     provides=["honeybee (0.1)"],
     entry_points={
         "console_scripts": [
+            "beepile = honeybee.comb_to_xlsform:dispatch",
             "beelint = honeybee.lint:dispatch",
         ],
     }
