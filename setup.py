@@ -3,17 +3,20 @@
 from setuptools import setup
 
 setup(
-    name="surveykit",
+    name="honeybee",
     version="0.1",
-    description="SurveyKIT: tools for efficient work with SurveyCTO forms",
+    description="Honeybee: tools for efficient work with XLSForm questionnaires",
     author=u"Gabor Nyeki",
     url="https://www.gabornyeki.com/",
-    packages=["surveykit"],
+    packages=[
+        "honeybee",
+        "honeybee.comb_to_xlsform"
+    ],
     install_requires=["argh", "xlrd"],
-    provides=["surveykit (0.1)"],
+    provides=["honeybee (0.1)"],
     entry_points={
         "console_scripts": [
-            "surveylint = surveykit.lint:dispatch",
+            "beelint = honeybee.lint:dispatch",
         ],
     }
 )

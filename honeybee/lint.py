@@ -120,7 +120,7 @@ def check_survey(survey, choices):
 
     cols = missing_survey_columns(survey)
     if cols:
-        print("Error: The survey worksheet is missing core columns",
+        print("Error: The survey worksheet is missing core columns ",
               ", ".join(cols),
               ".",
               sep="")
@@ -136,7 +136,7 @@ def check_survey(survey, choices):
         if defines_select(row):
             lists = undefined_choice_lists(row, list_names)
             if lists:
-                print("Error: %(name)s refers to undefined choice lists:" % row, end="")
+                print("Error: %(name)s refers to undefined choice lists: " % row, end="")
                 print("%s." % ", ".join(lists))
 
         if non_required_question(row):
@@ -147,7 +147,7 @@ def check_survey(survey, choices):
 
         refs = undefined_references(row, names)
         if refs:
-            print("Error: %(name)s has undefined references:" % row, end="")
+            print("Error: %(name)s has undefined references: " % row, end="")
             print("%s." % ", ".join(refs))
 
 

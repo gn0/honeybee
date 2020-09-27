@@ -1,3 +1,3 @@
 
-# SurveyKIT: tools for efficient work with SurveyCTO forms
+# Honeybee: tools for efficient work with XLSForm questionnaires
 
