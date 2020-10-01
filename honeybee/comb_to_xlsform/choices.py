@@ -1,11 +1,25 @@
-import re
-import copy
+# This file is part of Honeybee.
+#
+# Honeybee is free software: you can redistribute it and/or
+# modify it under the terms of the GNU Affero General Public
+# License as published by the Free Software Foundation, either
+# version 3 of the License, or (at your option) any later
+# version.
+#
+# Honeybee is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General
+# Public License along with Honeybee.  If not, see
+# <https://www.gnu.org/licenses/>.
 
-from collections import namedtuple
+import copy
 
 from pyparsing import (
     Forward, OneOrMore, Group, ungroup, alphas, alphanums, nums,
-    Word, QuotedString, restOfLine, LineEnd, Combine,
+    Word, QuotedString, restOfLine, LineEnd,
     indentedBlock, ZeroOrMore, Suppress)
 
 from honeybee.comb_to_xlsform.common import (
@@ -36,7 +50,7 @@ def parse_choices():
     list_body = indentedBlock(ungroup(stmt), indent_stack)
     list_block = Group(list_def + list_body)
 
-    stmt <<= (comment | list_block | choice)
+    stmt <<= (comment | command | list_block | choice)
     stmts = OneOrMore(stmt)
 
     return stmts
