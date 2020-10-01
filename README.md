@@ -18,6 +18,11 @@ The tools include:
 ### Honeybee
 
 Honeybee has been tested with Python 3.8.
+Required packages:
+
+- [argh](https://github.com/neithere/argh)
+- [pyparsing](https://github.com/pyparsing/pyparsing)
+- [openpyxl](https://openpyxl.readthedocs.io/en/stable/)
 
 ### Syntax highlighting in Vim
 
