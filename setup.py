@@ -5,7 +5,7 @@ from setuptools import setup
 setup(
     name="honeybee",
     version="0.1",
-    description="Honeybee: tools for efficient work with XLSForm questionnaires",
+    description="Honeybee: tools for efficient editing of XLSForm questionnaires",
     author=u"Gabor Nyeki",
     url="https://www.gabornyeki.com/",
     packages=[

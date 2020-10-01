@@ -1,5 +1,5 @@
 
-# Honeybee: tools for efficient work with XLSForm questionnaires
+# Honeybee: tools for efficient editing of XLSForm questionnaires
 
 [XLSForm questionnaires](http://xlsform.org/en/) are a staple of survey data collection.
 The main way to edit them is either through SurveyCTO's online form builder, or in Excel documents.
