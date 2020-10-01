@@ -25,23 +25,6 @@ def get_column_names(rows):
                     for name in row.keys())
 
 
-def adjust_column_widths(sheet):
-    """Set the width of each column large enough that the contents are
-    visible.  Implements a workaround because the bestFit and auto_size
-    options provided by openpyxl's ColumnDimension object don't work."""
-
-    lengths = {}
-
-    for column_cells in sheet.columns:
-        column_letter = column_cells[0].column_letter
-
-        lengths[column_letter] = max(
-            len(str(cell.value)) for cell in column_cells if cell.value)
-
-    for column_letter, max_length in lengths.items():
-        sheet.column_dimensions[column_letter].width = max_length * 1.23
-
-
 def write_sheet(sheet, rows, column_key):
     column_names = sorted(
         get_column_names(rows), key=column_key)
@@ -51,8 +34,6 @@ def write_sheet(sheet, rows, column_key):
     for row in rows:
         sheet.append(
             tuple(row.get(name) for name in column_names))
-
-    adjust_column_widths(sheet)
 
 
 def write_xlsx(survey, filename):
