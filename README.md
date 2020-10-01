@@ -1,6 +1,8 @@
 
 # Honeybee: tools for efficient editing of XLSForm questionnaires
 
+[![licensed under AGPL](https://img.shields.io/github/license/gn0/honeybee)](https://www.gnu.org/licenses/agpl-3.0.en.html)
+
 [XLSForm questionnaires](http://xlsform.org/en/) are a staple of survey data collection.
 The main way to edit them is either through SurveyCTO's online form builder, or in Excel documents.
 The problem is that as questionnaires get longer, or if they contain repetitions of similar questions, edits become both more prone to mistakes and more labor-intensive.
