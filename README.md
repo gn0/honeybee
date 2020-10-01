@@ -13,6 +13,25 @@ The tools include:
 - `beelint`: a program to check the correctness of Excel documents
 - syntax highlighting in the [Vim](https://en.wikipedia.org/wiki/Vim_(text_editor)) text editor
 
+## Table of contents
+
+- [Installation](#installation)
+    - [Honeybee](#honeybee)
+    - [Syntax highlighting in Vim](#syntax-highlighting-in-vim)
+- [The Honeycomb language](#the-honeycomb-language)
+    - [The `@form` command](#the-form-command)
+    - [Comments](#comments)
+    - [Questions](#questions)
+    - [Question parameters](#question-parameters)
+    - [Variable substitution](#variable-substitution)
+    - [Setting `required yes` as the default](#setting-required-yes-as-the-default)
+    - [Choice lists](#choice-lists)
+    - [Automatic computations with `calculate`](#automatic-computations-with-calculate)
+    - [The `if` statement](#the-if-statement)
+    - [Groups and repeat groups](#groups-and-repeat-groups)
+    - [The `@include` command](#the-include-command)
+    - [Re-using questions with the `@include` command](#re-using-questions-with-the-include-command)
+
 ## Installation
 
 ### Honeybee
