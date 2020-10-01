@@ -1,0 +1,12 @@
+list gender:
+    1 "female"
+    2 "male"
+    3 "non-binary"
+
+list yes_no:
+    1 "yes"
+    0 "no"
+
+list normal_wide:
+    1 "normal toe box"
+    2 "wide toe box"

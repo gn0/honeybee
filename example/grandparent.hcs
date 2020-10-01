@@ -1,0 +1,12 @@
+#
+# Questions about the subject's grandparent
+#
+
+knows_${!grandparent}_hometown select_one yes_no:
+    "Does ${name} remember ${pronoun} maternal ${!grandparent}'s hometown?"
+
+if "${knows_${!grandparent}_hometown} = 1 and ${gender} = 1":
+    ${!grandparent}_hometown text:
+        "What is the name of her maternal ${!grandparent}'s hometown?"
+    ${!grandparent}_moving_age integer:
+        "At what age did she move from ${${!grandparent}_hometown}?"

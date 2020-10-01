@@ -1,0 +1,21 @@
+#
+# Demographic questions
+#
+
+name text:
+    "What is the name of the subject?"
+
+welcome_note note:
+    "Pleased to meet you, ${name}!"
+    required no
+
+age integer:
+    "What is ${name}'s age?"
+    constraint ". > 0"
+    constraint_message "Age must be a positive integer."
+
+gender select_one gender:
+    "What is ${name}'s gender?"
+
+pronoun calculate:
+    "if(${gender} = 1, 'her', if(${gender} = 2, 'his', 'their'))"

@@ -1,0 +1,17 @@
+#
+# Questions about shoes
+#
+
+num_shoes integer:
+    "How many pairs of running shoes has ${name} owned in the past 24 months?"
+    constraint ". >= 0"
+
+repeat shoe_params "Shoe Parameters" repeat_count "${num_shoes}":
+
+    shoe_index calculate: "index()"
+
+    shoe_size integer:
+        "What is the size of pair #${shoe_index}?"
+
+    toe_box select_one normal_wide:
+        "What kind of toe box does pair #${shoe_index} have?"

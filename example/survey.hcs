@@ -1,0 +1,8 @@
+@form shoes auto "Shoe Questionnaire"
+@choices "survey.hcc"
+@required yes
+
+@include "demog.hcs"
+@include "grandparent.hcs" grandparent "grandmother"
+@include "grandparent.hcs" grandparent "grandfather"
+@include "shoes.hcs"
