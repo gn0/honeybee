@@ -37,6 +37,12 @@ The tools include:
 ### Honeybee
 
 Honeybee has been tested with Python 3.8.
+To install it using pip, type:
+
+```
+pip install git+https://github.com/gn0/honeybee
+```
+
 Required packages:
 
 - [argh](https://github.com/neithere/argh)
