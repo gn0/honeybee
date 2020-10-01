@@ -18,15 +18,16 @@
 import re
 
 import argh
-import xlrd
+import openpyxl
 
 
 def dict_rows(sheet):
-    rows = sheet.get_rows()
+    rows = sheet.iter_rows()
     header = tuple(cell.value for cell in next(rows))
 
     for row in rows:
-        yield {key: cell.value for key, cell in zip(header, row)}
+        yield {key: str(cell.value or "")
+               for key, cell in zip(header, row)}
 
 
 def check_choices(choices):
@@ -49,7 +50,7 @@ def choices_list_names(choices):
 
 
 def missing_survey_columns(survey):
-    rows = survey.get_rows()
+    rows = survey.iter_rows()
     header = tuple(cell.value for cell in next(rows))
 
     return tuple(col for col in ("name", "type", "label")
@@ -152,10 +153,10 @@ def check_survey(survey, choices):
 
 
 def main(filename):
-    form = xlrd.open_workbook(filename)
+    form = openpyxl.load_workbook(filename)
 
-    choices = form.sheet_by_name("choices")
-    survey = form.sheet_by_name("survey")
+    choices = form.get_sheet_by_name("choices")
+    survey = form.get_sheet_by_name("survey")
 
     check_choices(choices)
     check_survey(survey, choices)
