@@ -24,7 +24,9 @@ def parse_survey():
 
     identifier = Word(alphas, alphanums + "_")
     number = Word(nums)
-    string = QuotedString('"', escChar="\\")
+    doublequoted_string = QuotedString('"', escChar="\\")
+    singlequoted_string = QuotedString("'", escChar="\\")
+    string = doublequoted_string | singlequoted_string
     value = number | string
 
     op = oneOf("+ - * /")
@@ -37,19 +39,21 @@ def parse_survey():
     variable = Group("${" + identifier + "}")
     dot = Literal(".")
     expr = Group((variable | dot) + comp_op + value)
-    if_cond = "if" + expr
+    if_cond = "if" + (expr | value)
     if_body = indentedBlock(pp.ungroup(stmt), indent_stack)
     if_block = Group(if_cond + Suppress(":") + if_body)
 
+    q_name = identifier
     q_type = Group(OneOrMore(identifier))
+    q_label = string
     q_param = ((identifier + identifier) | (identifier + value))
     q_params = ZeroOrMore(q_param, stopOn=LineEnd())
-    question = Group(identifier + q_type + Suppress(":") + string + q_params)
+    question = Group(q_name + q_type + Suppress(":") + Optional(q_label) + q_params)
 
     group_params = Group(ZeroOrMore(q_param, stopOn=LineEnd()) + Optional(if_cond))
 
     group_label = string
-    group_def = "group" + Group(identifier + Optional(group_label)) + group_params + Suppress(":")
+    group_def = "group" + Group(identifier + Optional(group_label)) + group_params + Optional(if_cond) + Suppress(":")
     group_body = indentedBlock(pp.ungroup(stmt), indent_stack)
     group_block = Group(group_def + group_body)
 
@@ -64,13 +68,19 @@ def parse_survey():
 
 
 def compile_question(name, args, params):
-    question_type = args[0]
-    question_label = args[1]
-    question_params = args[2:]
-
     question = {"name": name,
-                "type": " ".join(str(a) for a in question_type),
-                "label": question_label}
+                "type": " ".join(str(word) for word in args[0])}
+
+    if len(args) % 2 == 1:
+        question_params = args[1:]
+    else:
+        if question["type"] == "calculate":
+            question["calculation"] = args[1]
+        else:
+            question["label"] = args[1]
+
+        question_params = args[2:]
+
     question.update(
         merge_params(
             params, args_to_params(question_params)))
@@ -102,7 +112,7 @@ def expand_survey(tree, params):
                 if form_version == "auto":
                     form_settings["version"] = (
                         datetime.datetime.utcnow()
-                        .strftime("%y%m%d%H%M%S"))
+                        .strftime("%y%m%d%H%M"))
                 else:
                     form_settings["version"] = form_version
 
@@ -124,15 +134,19 @@ def expand_survey(tree, params):
                     include_params = copy.deepcopy(params)
                     include_macros = args_to_params(args[2:])
 
+                    try:
+                        include_tree = parse_survey().parseString(
+                                           preprocess_indent(
+                                               substitute_macros(
+                                                   f.read(),
+                                                   include_macros)),
+                                           parseAll=True).asList()
+                    except pp.ParseException:
+                        raise ValueError(
+                            f"Error when parsing {args[1]}.")
+
                     expanded = expand_survey(
-                        # TODO Create a function to do this:
-                        parse_survey().parseString(
-                            preprocess_indent(
-                                substitute_macros(
-                                    f.read(),
-                                    include_macros)),
-                            parseAll=True).asList(),
-                        include_params)
+                        include_tree, include_params)
                     rows.extend(expanded.survey)
             elif args[0] == "required":
                 params["required"] = args[1]

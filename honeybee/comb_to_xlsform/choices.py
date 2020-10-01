@@ -26,7 +26,7 @@ def parse_choices():
     command = Group("@" + identifier + OneOrMore((identifier | value), stopOn=LineEnd()))
 
     choice_param = ((identifier + identifier) | (identifier + value))
-    choice_params = ZeroOrMore(choice_param, stopOn=LineEnd())
+    choice_params = Group(ZeroOrMore(choice_param, stopOn=LineEnd()))
     choice_value = value
     choice_label = value
     choice = Group(choice_value + choice_label + choice_params)
@@ -76,14 +76,17 @@ def expand_choices(tree, params):
                             include_params))
             else:
                 raise NameError(f"Unknown command: @{args[0]}.")
-        if command == "list":
+        elif command == "list":
             list_params = merge_params(
                 params,
                 {"list_name": args[0]})
 
+            list_params.update(
+                args_to_params(args[1]))
+
             rows.extend(
                 expand_choices(
-                    args[1], list_params))
+                    args[2], list_params))
         else:
             rows.append(
                 compile_choice(

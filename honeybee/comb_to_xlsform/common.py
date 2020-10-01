@@ -8,6 +8,9 @@ def pairwise(iterable):
 
 
 def if_cond_to_relevance(cond):
+    if isinstance(cond, str):
+        return cond
+
     if isinstance(cond[0], list):
         left_expr = "".join(str(element) for element in cond[0])
     else:
