@@ -15,23 +15,27 @@
 # Public License along with Honeybee.  If not, see
 # <https://www.gnu.org/licenses/>.
 
+import os
+
 import argh
 
 from honeybee.comb_to_xlsform.survey import compile_survey
 from honeybee.comb_to_xlsform.xlsx import write_xlsx
 
 
-def comb_to_xlsx(string, filename):
+def comb_to_xlsx(code, include_path, filename):
     write_xlsx(
-        compile_survey(string),
+        compile_survey(code, include_path),
         filename)
 
 
 @argh.arg("-o", "--output-filename", type=str, required=True)
 def main(input_filename, output_filename=None):
+    include_path = os.path.dirname(input_filename)
+
     with open(input_filename) as f:
         comb_to_xlsx(
-            f.read(), output_filename)
+            f.read(), include_path, output_filename)
 
 
 def dispatch():

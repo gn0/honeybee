@@ -23,7 +23,8 @@ from pyparsing import (
     indentedBlock, ZeroOrMore, Suppress)
 
 from honeybee.comb_to_xlsform.common import (
-    args_to_params, merge_params, substitute_macros)
+    new_path_and_filename, args_to_params, merge_params,
+    substitute_macros)
 
 
 def parse_choices():
@@ -56,6 +57,26 @@ def parse_choices():
     return stmts
 
 
+def execute_include(filename, args, params, include_path):
+    """Generate entries for the 'choices' worksheet based on an
+    @include command."""
+
+    include_path, filename = new_path_and_filename(
+        include_path, filename)
+
+    include_macros = args_to_params(args)
+
+    with open(filename) as f:
+        return expand_choices(
+            parse_choices().parseString(
+                substitute_macros(
+                    f.read(),
+                    include_macros),
+                parseAll=True).asList(),
+            params,
+            include_path)
+
+
 def compile_choice(value, args, params):
     choice = {"value": value,
               "label": args[0]}
@@ -67,7 +88,7 @@ def compile_choice(value, args, params):
     return choice
 
 
-def expand_choices(tree, params):
+def expand_choices(tree, params, include_path):
     rows = []
 
     for command, *args in tree:
@@ -76,18 +97,12 @@ def expand_choices(tree, params):
 
         if command == "@":
             if args[0] == "include":
-                with open(args[1]) as f:
-                    include_params = copy.deepcopy(params)
-                    include_macros = args_to_params(args[2:])
-
-                    rows.extend(
-                        expand_choices(
-                            parse_choices().parseString(
-                                substitute_macros(
-                                    f.read(),
-                                    include_macros),
-                                parseAll=True).asList(),
-                            include_params))
+                rows.extend(
+                    execute_include(
+                        filename=args[1],
+                        args=args[2:],
+                        params=copy.deepcopy(params),
+                        include_path=include_path))
             else:
                 raise NameError(f"Unknown command: @{args[0]}.")
         elif command == "list":
@@ -100,7 +115,7 @@ def expand_choices(tree, params):
 
             rows.extend(
                 expand_choices(
-                    args[2], list_params))
+                    args[2], list_params, include_path))
         else:
             rows.append(
                 compile_choice(

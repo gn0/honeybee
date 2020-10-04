@@ -17,6 +17,18 @@
 
 import re
 import copy
+import os.path
+
+
+def new_path_and_filename(path, filename):
+    dirname = os.path.dirname(filename)
+    if dirname:
+        path = os.path.join(path, dirname)
+
+    filename = os.path.join(
+        path, os.path.basename(filename))
+
+    return path, filename
 
 
 def pairwise(iterable):

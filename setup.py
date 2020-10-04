@@ -8,7 +8,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="honeybee",
-    version="0.2010011700",
+    version="0.2010041859",
     description="Honeybee: tools for efficient editing of XLSForm questionnaires",
     long_description=long_description,
     long_description_content_type="text/markdown",

@@ -28,8 +28,8 @@ from pyparsing import (
     alphas, alphanums, nums)
 
 from honeybee.comb_to_xlsform.common import (
-    if_cond_to_relevance, args_to_params, merge_params,
-    substitute_macros)
+    new_path_and_filename, if_cond_to_relevance,
+    args_to_params, merge_params, substitute_macros)
 from honeybee.comb_to_xlsform.preprocess import preprocess_indent
 from honeybee.comb_to_xlsform.choices import parse_choices, expand_choices
 
@@ -102,8 +102,11 @@ def execute_form_settings(form_id, form_version, form_title, args):
     return form_settings
 
 
-def execute_choices(filename, args):
+def execute_choices(filename, args, include_path):
     "Generate a choice list based on a @choices command."
+
+    include_path, filename = new_path_and_filename(
+        include_path, filename)
 
     choices_macros = args_to_params(args)
 
@@ -114,12 +117,16 @@ def execute_choices(filename, args):
                     f.read(),
                     choices_macros),
                 parseAll=True).asList(),
-            dict())
+            dict(),
+            include_path)
 
 
-def execute_include(filename, args, params):
+def execute_include(filename, args, params, include_path):
     """Generate 'survey' and 'choices' worksheets based on an
     @include command."""
+
+    include_path, filename = new_path_and_filename(
+        include_path, filename)
 
     include_macros = args_to_params(args)
 
@@ -135,7 +142,7 @@ def execute_include(filename, args, params):
             raise ValueError(
                 f"Error when parsing {filename}.")
 
-    return expand_survey(include_tree, params)
+    return expand_survey(include_tree, params, include_path)
 
 
 def compile_question(name, args, params):
@@ -161,7 +168,7 @@ def compile_question(name, args, params):
     return question
 
 
-def expand_survey(tree, params):
+def expand_survey(tree, params, include_path):
     rows = []
     choices = []
     settings = None
@@ -182,12 +189,14 @@ def expand_survey(tree, params):
                 choices.extend(
                     execute_choices(
                         filename=args[1],
-                        args=args[2:]))
+                        args=args[2:],
+                        include_path=include_path))
             elif args[0] == "include":
                 included_survey = execute_include(
                     filename=args[1],
                     args=args[2:],
-                    params=copy.deepcopy(params))
+                    params=copy.deepcopy(params),
+                    include_path=include_path)
 
                 rows.extend(included_survey.survey)
                 choices.extend(included_survey.choices)
@@ -200,7 +209,8 @@ def expand_survey(tree, params):
                 params,
                 {"relevance": if_cond_to_relevance(args[0])})
 
-            expanded = expand_survey(args[1], if_params)
+            expanded = expand_survey(
+                args[1], if_params, include_path)
             rows.extend(expanded.survey)
         elif command in ("group", "repeat"):
             group_name = args[0][0]
@@ -221,7 +231,8 @@ def expand_survey(tree, params):
                 if param_name in group_params:
                     del group_params[param_name]
 
-            expanded = expand_survey(args[2], group_params)
+            expanded = expand_survey(
+                args[2], group_params, include_path)
             rows.extend(expanded.survey)
 
             rows.append(
@@ -238,10 +249,11 @@ def expand_survey(tree, params):
         settings=settings)
 
 
-def compile_survey(string):
+def compile_survey(code, include_path):
     return expand_survey(
         parse_survey().parseString(
             preprocess_indent(
-                string),
+                code),
             parseAll=True).asList(),
-        dict())
+        dict(),
+        include_path)
