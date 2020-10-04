@@ -84,7 +84,63 @@ def parse_survey():
     return stmts
 
 
+def execute_form_settings(form_id, form_version, form_title, args):
+    "Generate the 'settings' worksheet based on a @form command."
+
+    form_settings = {"form_title": form_title,
+                     "form_id": form_id}
+    form_settings.update(
+        args_to_params(args))
+
+    if form_version == "auto":
+        form_settings["version"] = (
+            datetime.datetime.utcnow()
+            .strftime("%y%m%d%H%M"))
+    else:
+        form_settings["version"] = form_version
+
+    return form_settings
+
+
+def execute_choices(filename, args):
+    "Generate a choice list based on a @choices command."
+
+    choices_macros = args_to_params(args)
+
+    with open(filename) as f:
+        return expand_choices(
+            parse_choices().parseString(
+                substitute_macros(
+                    f.read(),
+                    choices_macros),
+                parseAll=True).asList(),
+            dict())
+
+
+def execute_include(filename, args, params):
+    """Generate 'survey' and 'choices' worksheets based on an
+    @include command."""
+
+    include_macros = args_to_params(args)
+
+    with open(filename) as f:
+        try:
+            include_tree = parse_survey().parseString(
+                               preprocess_indent(
+                                   substitute_macros(
+                                       f.read(),
+                                       include_macros)),
+                               parseAll=True).asList()
+        except pp.ParseException:
+            raise ValueError(
+                f"Error when parsing {filename}.")
+
+    return expand_survey(include_tree, params)
+
+
 def compile_question(name, args, params):
+    "Compile a question for the 'survey' worksheet."
+
     question = {"name": name,
                 "type": " ".join(str(word) for word in args[0])}
 
@@ -116,55 +172,25 @@ def expand_survey(tree, params):
 
         if command == "@":
             if args[0] == "form":
-                form_id = args[1]
-                form_version = args[2]
-                form_title = args[3]
-                form_args = args[4:]
-
-                form_settings = {"form_title": form_title,
-                                 "form_id": form_id}
-                form_settings.update(
-                    args_to_params(form_args))
-
-                if form_version == "auto":
-                    form_settings["version"] = (
-                        datetime.datetime.utcnow()
-                        .strftime("%y%m%d%H%M"))
-                else:
-                    form_settings["version"] = form_version
-
-                settings = [form_settings]
+                settings = [
+                    execute_form_settings(
+                        form_id=args[1],
+                        form_version=args[2],
+                        form_title=args[3],
+                        args=args[4:])]
             elif args[0] == "choices":
-                with open(args[1]) as f:
-                    choices_macros = args_to_params(args[2:])
-
-                    choices.extend(
-                        expand_choices(
-                            parse_choices().parseString(
-                                substitute_macros(
-                                    f.read(),
-                                    choices_macros),
-                                parseAll=True).asList(),
-                            dict()))
+                choices.extend(
+                    execute_choices(
+                        filename=args[1],
+                        args=args[2:]))
             elif args[0] == "include":
-                with open(args[1]) as f:
-                    include_params = copy.deepcopy(params)
-                    include_macros = args_to_params(args[2:])
+                included_survey = execute_include(
+                    filename=args[1],
+                    args=args[2:],
+                    params=copy.deepcopy(params))
 
-                    try:
-                        include_tree = parse_survey().parseString(
-                                           preprocess_indent(
-                                               substitute_macros(
-                                                   f.read(),
-                                                   include_macros)),
-                                           parseAll=True).asList()
-                    except pp.ParseException:
-                        raise ValueError(
-                            f"Error when parsing {args[1]}.")
-
-                    expanded = expand_survey(
-                        include_tree, include_params)
-                    rows.extend(expanded.survey)
+                rows.extend(included_survey.survey)
+                choices.extend(included_survey.choices)
             elif args[0] == "required":
                 params["required"] = args[1]
             else:
